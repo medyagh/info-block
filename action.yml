@@ -23,7 +23,7 @@ runs:
 
         run() {
           if [ "$FAIL_ON_ERROR" = "true" ]; then
-            bash -c "$1"
+            bash -c "set +u; $1"
           else
             bash -c "$1" || true
           fi
