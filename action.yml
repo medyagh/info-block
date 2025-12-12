@@ -47,7 +47,7 @@ runs:
           system_profiler SPStorageDataType | sed -n '1,200p' || true
 
           echo "=== Network ==="
-          echo "$HTTP_PROXY"
+          echo "${HTTP_PROXY:-}"
           ifconfig
           networksetup -listallhardwareports || true
           scutil --get HostName || true
@@ -111,7 +111,7 @@ runs:
           df -h || true
 
           echo "=== Network ==="
-          echo "$HTTP_PROXY"
+          echo "${HTTP_PROXY:-}"
           ip addr show || true
           ip route || true
           ip -s link || true
