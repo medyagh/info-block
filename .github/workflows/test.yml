@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  info-block:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest          # x64
+          - ubuntu-22.04-arm       # arm64
+          - macos-13               # Intel
+          - macos-14               # arm64
+          - macos-latest           # x64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run info-block action
+        uses: ./
