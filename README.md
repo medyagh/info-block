@@ -5,16 +5,6 @@ GitHub Action to print detailed runner information (OS, CPU, memory, virtualizat
 Add a step to your workflow:
 
 ```yaml
-name: Demo Info
-on: [workflow_dispatch]
-
-jobs:
-  info:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    steps:
       - uses: medyagh/info-block@v1
 ```
 
