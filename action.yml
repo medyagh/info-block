@@ -7,19 +7,21 @@ runs:
     - name: Print runner details
       shell: bash
       run: |
-        set -uo pipefail
+        set +e
+        set +u
+        set -o pipefail
         echo "=== Info Block for $RUNNER_OS ==="
 
         if [[ "$RUNNER_OS" == "macOS" ]]; then
           set -x
           echo "=== Kernel and OS ==="
-          uname -a
-          sw_vers
+          uname -a || true
+          sw_vers || true
           sysctl kern.osrelease kern.osversion kern.version || true
 
           echo "=== CPU ==="
-          sysctl -n machdep.cpu.brand_string
-          sysctl -n hw.ncpu
+          sysctl -n machdep.cpu.brand_string || true
+          sysctl -n hw.ncpu || true
           sysctl -n machdep.cpu.core_count || true
           sysctl -n machdep.cpu.thread_count || true
           sysctl -n machdep.cpu.features || true
@@ -27,8 +29,8 @@ runs:
           sysctl -n machdep.cpu.extfeatures || true
 
           echo "=== Memory ==="
-          sysctl -n hw.memsize
-          echo "$(sysctl -n hw.memsize) / 1024 / 1024 / 1024" | bc
+          sysctl -n hw.memsize || true
+          echo "$(sysctl -n hw.memsize) / 1024 / 1024 / 1024" | bc || true
           sysctl -n hw.pagesize || true
           vm_stat || true
 
@@ -38,17 +40,17 @@ runs:
           sysctl -n machdep.cpu.features | grep -i vmx || true
 
           echo "=== Hardware Inventory ==="
-          sysctl hw.model
-          system_profiler SPHardwareDataType
+          sysctl hw.model || true
+          system_profiler SPHardwareDataType || true
 
           echo "=== Storage ==="
           diskutil list || true
-          df -h
+          df -h || true
           system_profiler SPStorageDataType | sed -n '1,200p' || true
 
           echo "=== Network ==="
           echo "${HTTP_PROXY:-}"
-          ifconfig
+          ifconfig || true
           networksetup -listallhardwareports || true
           scutil --get HostName || true
           scutil --get LocalHostName || true
@@ -58,7 +60,7 @@ runs:
           scutil --dns || true
 
           echo "=== Uptime and Load ==="
-          uptime
+          uptime || true
           sysctl kern.boottime || true
           top -l 1 -n 0 | head -n 10 || true
 
@@ -68,11 +70,11 @@ runs:
         elif [[ "$RUNNER_OS" == "Linux" ]]; then
           set -x
           echo "=== Kernel and OS ==="
-          uname -a
-          cat /etc/os-release
+          uname -a || true
+          cat /etc/os-release || true
 
           echo "=== CPU ==="
-          nproc
+          nproc || true
           grep -m1 'model name' /proc/cpuinfo || true
           grep -m1 '^flags' /proc/cpuinfo || true
           lscpu || true
@@ -88,10 +90,10 @@ runs:
           egrep -c '(vmx|svm)' /proc/cpuinfo || true
           lsmod | grep -E '(^kvm|kvm_(intel|amd))' || true
           if [ -f /sys/module/kvm_intel/parameters/nested ]; then
-            echo -n "kvm_intel nested: "; cat /sys/module/kvm_intel/parameters/nested
+            echo -n "kvm_intel nested: "; cat /sys/module/kvm_intel/parameters/nested || true
           fi
           if [ -f /sys/module/kvm_amd/parameters/nested ]; then
-            echo -n "kvm_amd nested: "; cat /sys/module/kvm_amd/parameters/nested
+            echo -n "kvm_amd nested: "; cat /sys/module/kvm_amd/parameters/nested || true
           fi
           sudo journalctl -k | grep -i kvm | tail -n 100 || true
           if command -v virt-host-validate >/dev/null 2>&1; then
@@ -126,6 +128,53 @@ runs:
           top -b -n1 | head -n 10 || true
           cat /proc/loadavg || true
           awk '{printf "Uptime (seconds): %s\n", $1}' /proc/uptime 2>/dev/null || true
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          set -x
+          echo "=== Kernel and OS ==="
+          uname -a || true
+          systeminfo || true
+          wmic os get Caption,Version,BuildNumber /value || true
+
+          echo "=== CPU ==="
+          wmic cpu get Name,NumberOfCores,NumberOfLogicalProcessors /value || true
+          wmic cpu get VirtualizationFirmwareEnabled,SecondLevelAddressTranslationExtensions /value || true
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_Processor | Select-Object Name,Manufacturer,SocketDesignation,MaxClockSpeed | Format-List" || true
+
+          echo "=== Memory ==="
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | Format-List" || true
+          wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value || true
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize" || true
+
+          echo "=== Virtualization ==="
+          systeminfo | findstr /C:\"Virtualization\" || true
+          powershell.exe -NoProfile -Command "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All" || true
+
+          echo "=== Hardware Inventory ==="
+          wmic computersystem get Manufacturer,Model,SystemType,TotalPhysicalMemory /value || true
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_BaseBoard | Format-List Manufacturer,Product,SerialNumber" || true
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_BIOS | Format-List Manufacturer,SMBIOSBIOSVersion,ReleaseDate" || true
+
+          echo "=== Storage ==="
+          wmic logicaldisk get Name,FileSystem,FreeSpace,Size,VolumeName /value || true
+          powershell.exe -NoProfile -Command "Get-PhysicalDisk | Select FriendlyName,Model,SerialNumber,MediaType,Size,BusType | Format-Table -AutoSize" || true
+          powershell.exe -NoProfile -Command "Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystem,SizeRemaining,Size | Format-Table -AutoSize" || true
+
+          echo "=== Network ==="
+          echo "${HTTP_PROXY:-}"
+          ipconfig /all || true
+          route print || true
+          netstat -rn || true
+          powershell.exe -NoProfile -Command "Get-NetAdapter | Format-Table -AutoSize" || true
+          powershell.exe -NoProfile -Command "Get-DnsClientServerAddress | Format-Table -AutoSize" || true
+
+          echo "=== Uptime and Load ==="
+          net stats srv || true
+          powershell.exe -NoProfile -Command "(Get-CimInstance win32_operatingsystem).LastBootUpTime" || true
+          powershell.exe -NoProfile -Command "Get-Counter -Counter \"\\Processor(_Total)\\% Processor Time\" -SampleInterval 1 -MaxSamples 1" || true
+
+          echo "=== Security ==="
+          powershell.exe -NoProfile -Command "Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,BehaviorMonitorEnabled,RealTimeProtectionEnabled | Format-List" || true
+          powershell.exe -NoProfile -Command "Get-BitLockerVolume | Format-Table -AutoSize" || true
         else
           echo "Unsupported runner OS: $RUNNER_OS"
         fi
