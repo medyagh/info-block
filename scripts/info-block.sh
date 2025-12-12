@@ -32,7 +32,9 @@ if [[ "$RUNNER_OS" == "macOS" ]]; then
   run "sysctl -n machdep.cpu.thread_count"
   run "sysctl -n machdep.cpu.features"
   run "sysctl -n machdep.cpu.leaf7_features 2>/dev/null || true"
-  run "sysctl -n machdep.cpu.extfeatures
+  if [[ "$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)" == *"Intel"* ]]; then
+    run "sysctl -n machdep.cpu.extfeatures"
+  fi
 
   echo "=== Memory ==="
   run "sysctl -n hw.memsize"
