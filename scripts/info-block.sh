@@ -157,7 +157,7 @@ elif [[ "$RUNNER_OS" == "Windows" ]]; then
   run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize\""
 
   echo "=== Virtualization ==="
-  run "systeminfo | findstr /C:\\\"Virtualization\\\""
+  run "powershell.exe -NoProfile -Command \"Get-ComputerInfo | Select-Object HyperVisorPresent,HyperVRequirementDataExecutionPreventionAvailable,HyperVRequirementSecondLevelAddressTranslation,HyperVRequirementVirtualizationFirmwareEnabled | Format-List\""
   run "powershell.exe -NoProfile -Command \"Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All\""
 
   echo "=== Hardware Inventory ==="
