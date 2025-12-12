@@ -1,180 +1,192 @@
 name: "Info Block"
 description: "Print runner OS/hardware/network details for debugging"
 author: "medyagh"
+inputs:
+  fail_on_error:
+    description: "Set to true to fail the step if any command errors."
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
     - name: Print runner details
       shell: bash
       run: |
-        set +e
-        set +u
-        set -o pipefail
-        echo "=== Info Block for $RUNNER_OS ==="
+        FAIL_ON_ERROR="${{ inputs.fail_on_error }}"
+        if [ "$FAIL_ON_ERROR" = "true" ]; then
+          set -euo pipefail
+          OR_TRUE=""
+        else
+          set +e
+          set +u
+          set -o pipefail
+          OR_TRUE="|| true"
+        fi
+        echo "=== Info Block for $RUNNER_OS (fail_on_error=$FAIL_ON_ERROR) ==="
 
         if [[ "$RUNNER_OS" == "macOS" ]]; then
           set -x
           echo "=== Kernel and OS ==="
-          uname -a || true
-          sw_vers || true
-          sysctl kern.osrelease kern.osversion kern.version || true
+          uname -a ${OR_TRUE}
+          sw_vers ${OR_TRUE}
+          sysctl kern.osrelease kern.osversion kern.version ${OR_TRUE}
 
           echo "=== CPU ==="
-          sysctl -n machdep.cpu.brand_string || true
-          sysctl -n hw.ncpu || true
-          sysctl -n machdep.cpu.core_count || true
-          sysctl -n machdep.cpu.thread_count || true
-          sysctl -n machdep.cpu.features || true
-          sysctl -n machdep.cpu.leaf7_features || true
-          sysctl -n machdep.cpu.extfeatures || true
+          sysctl -n machdep.cpu.brand_string ${OR_TRUE}
+          sysctl -n hw.ncpu ${OR_TRUE}
+          sysctl -n machdep.cpu.core_count ${OR_TRUE}
+          sysctl -n machdep.cpu.thread_count ${OR_TRUE}
+          sysctl -n machdep.cpu.features ${OR_TRUE}
+          sysctl -n machdep.cpu.leaf7_features ${OR_TRUE}
+          sysctl -n machdep.cpu.extfeatures ${OR_TRUE}
 
           echo "=== Memory ==="
-          sysctl -n hw.memsize || true
-          echo "$(sysctl -n hw.memsize) / 1024 / 1024 / 1024" | bc || true
-          sysctl -n hw.pagesize || true
-          vm_stat || true
+          sysctl -n hw.memsize ${OR_TRUE}
+          echo "$(sysctl -n hw.memsize) / 1024 / 1024 / 1024" | bc ${OR_TRUE}
+          sysctl -n hw.pagesize ${OR_TRUE}
+          vm_stat ${OR_TRUE}
 
           echo "=== Virtualization ==="
-          sysctl -n kern.hv_vmm_present || true
-          sysctl -n kern.hv_support || true
-          sysctl -n machdep.cpu.features | grep -i vmx || true
+          sysctl -n kern.hv_vmm_present ${OR_TRUE}
+          sysctl -n kern.hv_support ${OR_TRUE}
+          sysctl -n machdep.cpu.features | grep -i vmx ${OR_TRUE}
 
           echo "=== Hardware Inventory ==="
-          sysctl hw.model || true
-          system_profiler SPHardwareDataType || true
+          sysctl hw.model ${OR_TRUE}
+          system_profiler SPHardwareDataType ${OR_TRUE}
 
           echo "=== Storage ==="
-          diskutil list || true
-          df -h || true
-          system_profiler SPStorageDataType | sed -n '1,200p' || true
+          diskutil list ${OR_TRUE}
+          df -h ${OR_TRUE}
+          system_profiler SPStorageDataType | sed -n '1,200p' ${OR_TRUE}
 
           echo "=== Network ==="
           echo "${HTTP_PROXY:-}"
-          ifconfig || true
-          networksetup -listallhardwareports || true
-          scutil --get HostName || true
-          scutil --get LocalHostName || true
-          scutil --get ComputerName || true
-          route -n get default || true
-          netstat -rn || true
-          scutil --dns || true
+          ifconfig ${OR_TRUE}
+          networksetup -listallhardwareports ${OR_TRUE}
+          scutil --get HostName ${OR_TRUE}
+          scutil --get LocalHostName ${OR_TRUE}
+          scutil --get ComputerName ${OR_TRUE}
+          route -n get default ${OR_TRUE}
+          netstat -rn ${OR_TRUE}
+          scutil --dns ${OR_TRUE}
 
           echo "=== Uptime and Load ==="
-          uptime || true
-          sysctl kern.boottime || true
-          top -l 1 -n 0 | head -n 10 || true
+          uptime ${OR_TRUE}
+          sysctl kern.boottime ${OR_TRUE}
+          top -l 1 -n 0 | head -n 10 ${OR_TRUE}
 
           echo "=== Security ==="
-          spctl --status || true
-          csrutil status || true
+          spctl --status ${OR_TRUE}
+          csrutil status ${OR_TRUE}
         elif [[ "$RUNNER_OS" == "Linux" ]]; then
           set -x
           echo "=== Kernel and OS ==="
-          uname -a || true
-          cat /etc/os-release || true
+          uname -a ${OR_TRUE}
+          cat /etc/os-release ${OR_TRUE}
 
           echo "=== CPU ==="
-          nproc || true
-          grep -m1 'model name' /proc/cpuinfo || true
-          grep -m1 '^flags' /proc/cpuinfo || true
-          lscpu || true
-          lscpu | grep -i 'hypervisor\|virt' || true
+          nproc ${OR_TRUE}
+          grep -m1 'model name' /proc/cpuinfo ${OR_TRUE}
+          grep -m1 '^flags' /proc/cpuinfo ${OR_TRUE}
+          lscpu ${OR_TRUE}
+          lscpu | grep -i 'hypervisor\|virt' ${OR_TRUE}
 
           echo "=== Memory ==="
-          grep MemTotal /proc/meminfo || true
-          awk '/MemTotal/ {printf "%.2f\n", $2 / 1024 / 1024}' /proc/meminfo || true
-          free -h || true
+          grep MemTotal /proc/meminfo ${OR_TRUE}
+          awk '/MemTotal/ {printf "%.2f\n", $2 / 1024 / 1024}' /proc/meminfo ${OR_TRUE}
+          free -h ${OR_TRUE}
 
           echo "=== Virtualization ==="
-          systemd-detect-virt || true
-          egrep -c '(vmx|svm)' /proc/cpuinfo || true
-          lsmod | grep -E '(^kvm|kvm_(intel|amd))' || true
+          systemd-detect-virt ${OR_TRUE}
+          egrep -c '(vmx|svm)' /proc/cpuinfo ${OR_TRUE}
+          lsmod | grep -E '(^kvm|kvm_(intel|amd))' ${OR_TRUE}
           if [ -f /sys/module/kvm_intel/parameters/nested ]; then
-            echo -n "kvm_intel nested: "; cat /sys/module/kvm_intel/parameters/nested || true
+            echo -n "kvm_intel nested: "; cat /sys/module/kvm_intel/parameters/nested ${OR_TRUE}
           fi
           if [ -f /sys/module/kvm_amd/parameters/nested ]; then
-            echo -n "kvm_amd nested: "; cat /sys/module/kvm_amd/parameters/nested || true
+            echo -n "kvm_amd nested: "; cat /sys/module/kvm_amd/parameters/nested ${OR_TRUE}
           fi
-          sudo journalctl -k | grep -i kvm | tail -n 100 || true
+          sudo journalctl -k | grep -i kvm | tail -n 100 ${OR_TRUE}
           if command -v virt-host-validate >/dev/null 2>&1; then
-            sudo virt-host-validate || true
+            sudo virt-host-validate ${OR_TRUE}
           fi
 
           echo "=== Hardware Inventory ==="
-          sudo dmidecode -s system-manufacturer || true
-          sudo dmidecode -s system-product-name || true
-          sudo dmidecode -t bios -t system -t processor -t memory | sed -n '1,200p' || true
-          sudo lshw -short || true
-          lspci -nn || true
-          lsusb || true
+          sudo dmidecode -s system-manufacturer ${OR_TRUE}
+          sudo dmidecode -s system-product-name ${OR_TRUE}
+          sudo dmidecode -t bios -t system -t processor -t memory | sed -n '1,200p' ${OR_TRUE}
+          sudo lshw -short ${OR_TRUE}
+          lspci -nn ${OR_TRUE}
+          lsusb ${OR_TRUE}
 
           echo "=== Storage ==="
-          lsblk -o NAME,MODEL,SIZE,TYPE,MOUNTPOINT,FSTYPE || true
-          df -h || true
+          lsblk -o NAME,MODEL,SIZE,TYPE,MOUNTPOINT,FSTYPE ${OR_TRUE}
+          df -h ${OR_TRUE}
 
           echo "=== Network ==="
           echo "${HTTP_PROXY:-}"
-          ip addr show || true
-          ip route || true
-          ip -s link || true
-          ifconfig || true
+          ip addr show ${OR_TRUE}
+          ip route ${OR_TRUE}
+          ip -s link ${OR_TRUE}
+          ifconfig ${OR_TRUE}
 
           echo "=== Cgroups ==="
-          stat -fc %T /sys/fs/cgroup || true
+          stat -fc %T /sys/fs/cgroup ${OR_TRUE}
 
           echo "=== Uptime and Load ==="
-          uptime || true
-          who -b || true
-          top -b -n1 | head -n 10 || true
-          cat /proc/loadavg || true
-          awk '{printf "Uptime (seconds): %s\n", $1}' /proc/uptime 2>/dev/null || true
+          uptime ${OR_TRUE}
+          who -b ${OR_TRUE}
+          top -b -n1 | head -n 10 ${OR_TRUE}
+          cat /proc/loadavg ${OR_TRUE}
+          awk '{printf "Uptime (seconds): %s\n", $1}' /proc/uptime 2>/dev/null ${OR_TRUE}
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
           set -x
           echo "=== Kernel and OS ==="
-          uname -a || true
-          systeminfo || true
-          wmic os get Caption,Version,BuildNumber /value || true
+          uname -a ${OR_TRUE}
+          systeminfo ${OR_TRUE}
+          wmic os get Caption,Version,BuildNumber /value ${OR_TRUE}
 
           echo "=== CPU ==="
-          wmic cpu get Name,NumberOfCores,NumberOfLogicalProcessors /value || true
-          wmic cpu get VirtualizationFirmwareEnabled,SecondLevelAddressTranslationExtensions /value || true
-          powershell.exe -NoProfile -Command "Get-CimInstance Win32_Processor | Select-Object Name,Manufacturer,SocketDesignation,MaxClockSpeed | Format-List" || true
+          wmic cpu get Name,NumberOfCores,NumberOfLogicalProcessors /value ${OR_TRUE}
+          wmic cpu get VirtualizationFirmwareEnabled,SecondLevelAddressTranslationExtensions /value ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_Processor | Select-Object Name,Manufacturer,SocketDesignation,MaxClockSpeed | Format-List" ${OR_TRUE}
 
           echo "=== Memory ==="
-          powershell.exe -NoProfile -Command "Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | Format-List" || true
-          wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value || true
-          powershell.exe -NoProfile -Command "Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize" || true
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | Format-List" ${OR_TRUE}
+          wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize" ${OR_TRUE}
 
           echo "=== Virtualization ==="
-          systeminfo | findstr /C:\"Virtualization\" || true
-          powershell.exe -NoProfile -Command "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All" || true
+          systeminfo | findstr /C:\"Virtualization\" ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All" ${OR_TRUE}
 
           echo "=== Hardware Inventory ==="
-          wmic computersystem get Manufacturer,Model,SystemType,TotalPhysicalMemory /value || true
-          powershell.exe -NoProfile -Command "Get-CimInstance Win32_BaseBoard | Format-List Manufacturer,Product,SerialNumber" || true
-          powershell.exe -NoProfile -Command "Get-CimInstance Win32_BIOS | Format-List Manufacturer,SMBIOSBIOSVersion,ReleaseDate" || true
+          wmic computersystem get Manufacturer,Model,SystemType,TotalPhysicalMemory /value ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_BaseBoard | Format-List Manufacturer,Product,SerialNumber" ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_BIOS | Format-List Manufacturer,SMBIOSBIOSVersion,ReleaseDate" ${OR_TRUE}
 
           echo "=== Storage ==="
-          wmic logicaldisk get Name,FileSystem,FreeSpace,Size,VolumeName /value || true
-          powershell.exe -NoProfile -Command "Get-PhysicalDisk | Select FriendlyName,Model,SerialNumber,MediaType,Size,BusType | Format-Table -AutoSize" || true
-          powershell.exe -NoProfile -Command "Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystem,SizeRemaining,Size | Format-Table -AutoSize" || true
+          wmic logicaldisk get Name,FileSystem,FreeSpace,Size,VolumeName /value ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-PhysicalDisk | Select FriendlyName,Model,SerialNumber,MediaType,Size,BusType | Format-Table -AutoSize" ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystem,SizeRemaining,Size | Format-Table -AutoSize" ${OR_TRUE}
 
           echo "=== Network ==="
           echo "${HTTP_PROXY:-}"
-          ipconfig /all || true
-          route print || true
-          netstat -rn || true
-          powershell.exe -NoProfile -Command "Get-NetAdapter | Format-Table -AutoSize" || true
-          powershell.exe -NoProfile -Command "Get-DnsClientServerAddress | Format-Table -AutoSize" || true
+          ipconfig /all ${OR_TRUE}
+          route print ${OR_TRUE}
+          netstat -rn ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-NetAdapter | Format-Table -AutoSize" ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-DnsClientServerAddress | Format-Table -AutoSize" ${OR_TRUE}
 
           echo "=== Uptime and Load ==="
-          net stats srv || true
-          powershell.exe -NoProfile -Command "(Get-CimInstance win32_operatingsystem).LastBootUpTime" || true
-          powershell.exe -NoProfile -Command "Get-Counter -Counter \"\\Processor(_Total)\\% Processor Time\" -SampleInterval 1 -MaxSamples 1" || true
+          net stats srv ${OR_TRUE}
+          powershell.exe -NoProfile -Command "(Get-CimInstance win32_operatingsystem).LastBootUpTime" ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-Counter -Counter \"\\Processor(_Total)\\% Processor Time\" -SampleInterval 1 -MaxSamples 1" ${OR_TRUE}
 
           echo "=== Security ==="
-          powershell.exe -NoProfile -Command "Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,BehaviorMonitorEnabled,RealTimeProtectionEnabled | Format-List" || true
-          powershell.exe -NoProfile -Command "Get-BitLockerVolume | Format-Table -AutoSize" || true
+          powershell.exe -NoProfile -Command "Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,BehaviorMonitorEnabled,RealTimeProtectionEnabled | Format-List" ${OR_TRUE}
+          powershell.exe -NoProfile -Command "Get-BitLockerVolume | Format-Table -AutoSize" ${OR_TRUE}
         else
           echo "Unsupported runner OS: $RUNNER_OS"
         fi
