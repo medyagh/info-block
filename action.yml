@@ -14,7 +14,7 @@ runs:
       run: |
         FAIL_ON_ERROR="${{ inputs.fail_on_error }}"
         if [ "$FAIL_ON_ERROR" = "true" ]; then
-          set -euo pipefail
+          set -eo pipefail
         else
           set +e
           set +u
@@ -95,6 +95,7 @@ runs:
           echo "=== CPU ==="
           run "nproc"
           run "grep -m1 'model name' /proc/cpuinfo"
+          run "grep -m1 '^Hardware' /proc/cpuinfo"
           run "grep -m1 '^flags' /proc/cpuinfo"
           run "lscpu"
           run "lscpu | grep -i 'hypervisor\\|virt'"
