@@ -81,8 +81,12 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
 
   echo "=== CPU ==="
   run "nproc"
-  run "grep -m1 'model name' /proc/cpuinfo"
-  run "grep -m1 '^Hardware' /proc/cpuinfo"
+  arch="$(uname -m || true)"
+  if [[ "$arch" == "x86_64" || "$arch" == "amd64" ]]; then
+    run "grep -m1 'model name' /proc/cpuinfo"
+  else
+    run "grep -m1 '^Hardware' /proc/cpuinfo"
+  fi
   run "grep -m1 '^flags' /proc/cpuinfo"
   run "lscpu"
   run "lscpu | grep -i 'hypervisor\\|virt'"
