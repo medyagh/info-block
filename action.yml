@@ -139,7 +139,7 @@ runs:
           powershell.exe -NoProfile -Command "Get-CimInstance Win32_Processor | Select-Object Name,Manufacturer,SocketDesignation,MaxClockSpeed | Format-List" || true
 
           echo "=== Memory ==="
-          systeminfo | findstr /C:\"Total Physical Memory\" /C:\"Available Physical Memory\" || true
+          powershell.exe -NoProfile -Command "Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | Format-List" || true
           wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value || true
           powershell.exe -NoProfile -Command "Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize" || true
 
