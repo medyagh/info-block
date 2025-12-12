@@ -44,7 +44,7 @@ runs:
           run "sysctl -n machdep.cpu.core_count"
           run "sysctl -n machdep.cpu.thread_count"
           run "sysctl -n machdep.cpu.features"
-          run "sysctl -n machdep.cpu.leaf7_features"
+          run "sysctl -n machdep.cpu.leaf7_features 2>/dev/null || true"
           run "sysctl -n machdep.cpu.extfeatures"
 
           echo "=== Memory ==="
@@ -101,7 +101,7 @@ runs:
 
           echo "=== Memory ==="
           run "grep MemTotal /proc/meminfo"
-          run "awk '/MemTotal/ {printf \"%.2f\\n\", $2 / 1024 / 1024}' /proc/meminfo"
+          run "awk '/MemTotal/ {printf \"%.2f\\n\", \\$2 / 1024 / 1024}' /proc/meminfo"
           run "free -h"
 
           echo "=== Virtualization ==="
@@ -146,22 +146,20 @@ runs:
           run "who -b"
           run "top -b -n1 | head -n 10"
           run "cat /proc/loadavg"
-          run "awk '{printf \"Uptime (seconds): %s\\n\", $1}' /proc/uptime 2>/dev/null"
+          run "awk '{printf \"Uptime (seconds): %s\\n\", \\$1}' /proc/uptime 2>/dev/null"
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
           set -x
           echo "=== Kernel and OS ==="
           run "uname -a"
           run "systeminfo"
-          run "wmic os get Caption,Version,BuildNumber /value"
+          run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber | Format-List\""
 
           echo "=== CPU ==="
-          run "wmic cpu get Name,NumberOfCores,NumberOfLogicalProcessors /value"
-          run "wmic cpu get VirtualizationFirmwareEnabled,SecondLevelAddressTranslationExtensions /value"
+          run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_Processor | Select-Object Name,NumberOfCores,NumberOfLogicalProcessors,VirtualizationFirmwareEnabled,SecondLevelAddressTranslationExtensions | Format-List\""
           run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_Processor | Select-Object Name,Manufacturer,SocketDesignation,MaxClockSpeed | Format-List\""
 
           echo "=== Memory ==="
           run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | Format-List\""
-          run "wmic OS get TotalVisibleMemorySize,FreePhysicalMemory /value"
           run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize\""
 
           echo "=== Virtualization ==="
@@ -169,12 +167,12 @@ runs:
           run "powershell.exe -NoProfile -Command \"Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All\""
 
           echo "=== Hardware Inventory ==="
-          run "wmic computersystem get Manufacturer,Model,SystemType,TotalPhysicalMemory /value"
+          run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_ComputerSystem | Select-Object Manufacturer,Model,SystemType,TotalPhysicalMemory | Format-List\""
           run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_BaseBoard | Format-List Manufacturer,Product,SerialNumber\""
           run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_BIOS | Format-List Manufacturer,SMBIOSBIOSVersion,ReleaseDate\""
 
           echo "=== Storage ==="
-          run "wmic logicaldisk get Name,FileSystem,FreeSpace,Size,VolumeName /value"
+          run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_LogicalDisk | Select-Object DeviceID,FileSystem,FreeSpace,Size,VolumeName | Format-Table -AutoSize\""
           run "powershell.exe -NoProfile -Command \"Get-PhysicalDisk | Select FriendlyName,Model,SerialNumber,MediaType,Size,BusType | Format-Table -AutoSize\""
           run "powershell.exe -NoProfile -Command \"Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystem,SizeRemaining,Size | Format-Table -AutoSize\""
 
