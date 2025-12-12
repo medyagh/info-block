@@ -32,7 +32,7 @@ if [[ "$RUNNER_OS" == "macOS" ]]; then
   run "sysctl -n machdep.cpu.thread_count"
   run "sysctl -n machdep.cpu.features"
   run "sysctl -n machdep.cpu.leaf7_features 2>/dev/null || true"
-  run "sysctl -n machdep.cpu.extfeatures"
+  run "sysctl -n machdep.cpu.extfeatures
 
   echo "=== Memory ==="
   run "sysctl -n hw.memsize"
@@ -82,9 +82,9 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   echo "=== CPU ==="
   run "nproc"
   arch="$(uname -m || true)"
-  if [[ "$arch" == "x86_64" || "$arch" == "amd64" ]]; then
+  if [[ "$arch" == "x86_64" ]]; then
     run "grep -m1 'model name' /proc/cpuinfo"
-  else
+  else # arm64 or others
     run "grep -m1 '^Hardware' /proc/cpuinfo"
   fi
   run "grep -m1 '^flags' /proc/cpuinfo"
