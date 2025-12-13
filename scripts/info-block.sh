@@ -19,7 +19,6 @@ run() {
 echo "=== Info Block for ${RUNNER_OS:-unknown} (fail_on_error=${FAIL_ON_ERROR}) ==="
 
 if [[ "$RUNNER_OS" == "macOS" ]]; then
-  set -x
   echo "::group::=== Kernel and OS ==="
   run "uname -a"
   run "sw_vers"
@@ -85,7 +84,6 @@ if [[ "$RUNNER_OS" == "macOS" ]]; then
   run "csrutil status"
   echo "::endgroup::"
 elif [[ "$RUNNER_OS" == "Linux" ]]; then
-  set -x
   echo "::group::=== Kernel and OS ==="
   run "uname -a"
   run "cat /etc/os-release"
@@ -157,7 +155,6 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   run 'awk '\''{printf "Uptime (seconds): %s\n", $1}'\'' /proc/uptime 2>/dev/null'
   echo "::endgroup::"
 elif [[ "$RUNNER_OS" == "Windows" ]]; then
-  set -x
   echo "::group::=== Kernel and OS ==="
   run "uname -a"
   run "systeminfo"
