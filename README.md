@@ -30,9 +30,9 @@ jobs:
           echo "memory_gb: ${{ steps.info-block.outputs.memory_gb }}"
           echo "yay! it is more than 8 gb"
 
-      # Example: ensure at least 4GB free before a heavy job
+      # Example: ensure at least 4000 MB free before a heavy job
       - name: Run heavy job only if free memory is available
-        if: ${{ steps.info-block.outputs.free_mem > 4 }}
+        if: ${{ steps.info-block.outputs.free_mem > 4000 }}
         run: echo "free_mem: ${{ steps.info-block.outputs.free_mem }}"
 
       # Example: gate heavy tests if the 1-minute load average is below 2
@@ -47,7 +47,7 @@ The action detects `RUNNER_OS` and prints diagnostics tailored for macOS, Linux,
 - `memory_gb`: Total memory in GB (integer).
 - `cpu_cores`: Number of CPU cores (integer).
 - `load_average`: 1-minute load average on macOS/Linux; current CPU load percentage on Windows.
-- `free_mem`: Free/available memory in GB (integer).
+- `free_mem`: Free/available memory in MB (integer).
 Contribute more outputs by opening a PR!
 
 ### Fail on any error

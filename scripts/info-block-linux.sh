@@ -23,13 +23,13 @@ echo "::group::=== Memory ==="
 mem_kb="$(grep MemTotal /proc/meminfo | awk '{print $2}' 2>/dev/null || echo 0)"
 mem_gb=$((mem_kb / 1024 / 1024))
 mem_free_kb="$(grep MemAvailable /proc/meminfo | awk '{print $2}' 2>/dev/null || echo 0)"
-mem_free_gb=$((mem_free_kb / 1024 / 1024))
+mem_free_mb=$((mem_free_kb / 1024))
 echo "MemTotal (kB): ${mem_kb}"
 echo "MemTotal (GB): ${mem_gb}"
 echo "MemAvailable (kB): ${mem_free_kb}"
-echo "MemAvailable (GB): ${mem_free_gb}"
+echo "MemAvailable (MB): ${mem_free_mb}"
 echo "memory_gb=${mem_gb}" >> "$GITHUB_OUTPUT"
-echo "free_mem=${mem_free_gb}" >> "$GITHUB_OUTPUT"
+echo "free_mem=${mem_free_mb}" >> "$GITHUB_OUTPUT"
 run "free -h"
 echo "::endgroup::"
 

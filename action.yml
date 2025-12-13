@@ -17,7 +17,7 @@ outputs:
     description: "Load average (1-minute on macOS/Linux, current CPU load % on Windows)"
     value: ${{ steps.info-block.outputs.load_average }}
   free_mem:
-    description: "Free/available memory in gigabytes (integer)"
+    description: "Free/available memory in megabytes (integer)"
     value: ${{ steps.info-block.outputs.free_mem }}
 runs:
   using: "composite"

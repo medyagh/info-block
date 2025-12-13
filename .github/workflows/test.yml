@@ -46,8 +46,8 @@ jobs:
         run: |
           echo "load_average from action: ${{ steps.info-block.outputs.load_average }}"
           echo "load average is within limit, proceeding"
-      - name: Run this Step only if free_mem > 2 GB
-        if: ${{ steps.info-block.outputs.free_mem > 2 }}
+      - name: Run this Step only if free_mem > 2000 MB
+        if: ${{ steps.info-block.outputs.free_mem > 2000 }}
         run: |
           echo "free_mem from action: ${{ steps.info-block.outputs.free_mem }}"
           echo "free memory is sufficient, proceeding"
