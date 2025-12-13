@@ -41,10 +41,17 @@ jobs:
         if: ${{ steps.info-block.outputs.cpu_cores > 6 }}
         run: echo "CPU cores (${{ steps.info-block.outputs.cpu_cores }}) more than 6 !"
 
+      - name: Run this Step only if load_average <= 1
+        if: ${{ steps.info-block.outputs.load_average != 'unknown' && fromJSON(steps.info-block.outputs.load_average) <= 1 }}
+        run: |
+          echo "load_average from action: ${{ steps.info-block.outputs.load_average }}"
+          echo "load average is within limit, proceeding"
+
       - name: Print all outputs
         run: |
           echo "memory_gb=${{ steps.info-block.outputs.memory_gb }}"
           echo "cpu_cores=${{ steps.info-block.outputs.cpu_cores }}"
+          echo "load_average=${{ steps.info-block.outputs.load_average }}"
 
       - name: Run info-block action (fail_on_error)
         uses: ./
