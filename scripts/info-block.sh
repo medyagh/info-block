@@ -16,6 +16,7 @@ run() {
   fi
 }
 
+# Overrides the echo function to temporarily disable xtrace (to hide echo in the output)
 echo() {
   local _restore=0
   case "$-" in *x*) _restore=1;; esac
