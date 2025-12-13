@@ -98,7 +98,7 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   echo "=== Virtualization ==="
   run "systemd-detect-virt"
   run "egrep -c '(vmx|svm)' /proc/cpuinfo || true"
-  run "lsmod | grep -E '(^kvm|kvm_(intel|amd))'"
+  run "lsmod | grep -E '(^kvm|kvm_(intel|amd))' || true"
   if [ -f /sys/module/kvm_intel/parameters/nested ]; then
     run "echo -n \"kvm_intel nested: \"; cat /sys/module/kvm_intel/parameters/nested"
   fi
