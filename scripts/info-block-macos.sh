@@ -24,14 +24,21 @@ fi
 echo "::endgroup::"
 
 echo "::group::=== Memory ==="
-run "sysctl -n hw.memsize"
 mem_bytes="$(sysctl -n hw.memsize 2>/dev/null || echo 0)"
 mem_gb=$((mem_bytes / 1024 / 1024 / 1024))
 echo "Memory (bytes): ${mem_bytes}"
 echo "Memory (GB): ${mem_gb}"
 echo "memory_gb=${mem_gb}" >> "$GITHUB_OUTPUT"
-run "sysctl -n hw.pagesize"
-run "vm_stat"
+page_size="$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)"
+echo "Page size: ${page_size}"
+vm_stat_output="$(vm_stat 2>/dev/null || true)"
+echo "${vm_stat_output}"
+free_pages="$(printf "%s\n" "${vm_stat_output}" | awk '/Pages (free|inactive|speculative)/ {gsub(\"[^0-9]\", \"\", $3); sum += $3} END {print sum+0}')"
+free_bytes=$((free_pages * page_size))
+free_gb=$((free_bytes / 1024 / 1024 / 1024))
+echo "Free memory (bytes, approx): ${free_bytes}"
+echo "Free memory (GB, approx): ${free_gb}"
+echo "free_mem=${free_gb}" >> "$GITHUB_OUTPUT"
 echo "::endgroup::"
 
 echo "::group::=== Virtualization ==="

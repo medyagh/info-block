@@ -22,9 +22,15 @@ run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_OperatingSystem 
 mem_kb=$(powershell.exe -NoProfile -Command "(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize" 2>/dev/null | tr -d $'\r' || true)
 mem_kb=${mem_kb:-0}
 mem_gb=$((mem_kb / 1024 / 1024))
+mem_free_kb=$(powershell.exe -NoProfile -Command "(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory" 2>/dev/null | tr -d $'\r' || true)
+mem_free_kb=${mem_free_kb:-0}
+mem_free_gb=$((mem_free_kb / 1024 / 1024))
 echo "TotalVisibleMemorySize (kB): ${mem_kb}"
 echo "TotalVisibleMemorySize (GB): ${mem_gb}"
+echo "FreePhysicalMemory (kB): ${mem_free_kb}"
+echo "FreePhysicalMemory (GB): ${mem_free_gb}"
 echo "memory_gb=${mem_gb}" >> "$GITHUB_OUTPUT"
+echo "free_mem=${mem_free_gb}" >> "$GITHUB_OUTPUT"
 run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize\""
 echo "::endgroup::"
 
