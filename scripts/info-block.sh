@@ -116,7 +116,7 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   run "sudo dmidecode -t bios -t system -t processor -t memory | sed -n '1,200p'"
   run "sudo lshw -short"
   run "lspci -nn"
-  run "lsusb"
+  run "command -v lsusb >/dev/null 2>&1 && lsusb || echo 'lsusb not available'"
 
   echo "=== Storage ==="
   run "lsblk -o NAME,MODEL,SIZE,TYPE,MOUNTPOINT,FSTYPE"
