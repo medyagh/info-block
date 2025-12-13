@@ -58,6 +58,9 @@ echo "::group::=== Uptime and Load ==="
 run "powershell.exe -NoProfile -Command \"(Get-CimInstance Win32_PerfFormattedData_PerfOS_System).SystemUpTime\""
 run "powershell.exe -NoProfile -Command \"(Get-CimInstance win32_operatingsystem).LastBootUpTime\""
 run "powershell.exe -NoProfile -Command \"Get-Counter -Counter \\\"\\\\Processor(_Total)\\\\% Processor Time\\\" -SampleInterval 1 -MaxSamples 1\""
+load_avg=$(powershell.exe -NoProfile -Command \"(Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average\" 2>/dev/null | tr -d $'\\r' || true)
+echo "CPU Load Percentage (current): ${load_avg:-unknown}"
+echo "load_average=${load_avg:-unknown}" >> "$GITHUB_OUTPUT"
 echo "::endgroup::"
 
 echo "::group::=== Security ==="
