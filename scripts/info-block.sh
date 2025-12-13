@@ -88,7 +88,7 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   run "grep -m1 '^Hardware' /proc/cpuinfo" || true
   run "grep -m1 '^flags' /proc/cpuinfo" || true
   run "lscpu"
-  run "lscpu | grep -i 'hypervisor\\|virt'"
+  run "lscpu | grep -i 'hypervisor\\|virt' || true"
 
   echo "=== Memory ==="
   run "grep MemTotal /proc/meminfo"
