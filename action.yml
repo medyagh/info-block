@@ -10,6 +10,9 @@ outputs:
   memory_gb:
     description: "Total memory in gigabytes (integer)"
     value: ${{ steps.info-block.outputs.memory_gb }}
+  load_average:
+    description: "Load average (1-minute on macOS/Linux, current CPU load % on Windows)"
+    value: ${{ steps.info-block.outputs.load_average }}
 runs:
   using: "composite"
   steps:

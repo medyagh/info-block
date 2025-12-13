@@ -29,12 +29,18 @@ jobs:
         run: |
           echo "memory_gb: ${{ steps.info-block.outputs.memory_gb }}"
           echo "yay! it is more than 8 gb"
+
+      # Example: gate heavy tests if the 1-minute load average is below 2
+      - name: Run tests only if load average is low
+        if: ${{ steps.info-block.outputs.load_average != 'unknown' && fromJSON(steps.info-block.outputs.load_average) < 2 }}
+        run: echo "load_average: ${{ steps.info-block.outputs.load_average }}"
 ```
 
 The action detects `RUNNER_OS` and prints diagnostics tailored for macOS, Linux, or Windows runners.
 
 ### Outputs
 - `memory_gb`: Total memory in GB (integer). Contribute more outputs by opening a PR!
+- `load_average`: 1-minute load average on macOS/Linux; current CPU load percentage on Windows.
 
 ### Fail on any error
 By default the action is best-effort. To make it fail if any command errors, set `fail_on_error: true`:
