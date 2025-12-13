@@ -3,7 +3,7 @@ GitHub Action to print detailed runner information (OS, CPU, memory, virtualizat
 
 ## Features
 - Folded log groups per section (Kernel/CPU/Memory/etc.) for quick scanning
-- Exposes outputs for downstream steps (see [Outputs](#outputs))
+- Exposes outputs for downstream steps (see [supported outputs](#outputs))
 
 
 ## Usage

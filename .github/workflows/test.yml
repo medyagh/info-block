@@ -35,11 +35,11 @@ jobs:
         if: ${{ steps.info-block.outputs.memory_gb > 8 }}
         run: |
           echo "memory_gb from action: ${{ steps.info-block.outputs.memory_gb }}"
-          echo "yay! it is more than 8 gb"
+          echo "total memory is more than 8 gb"
 
       - name: Skip if cpu_cores < 6
-        if: ${{ steps.info-block.outputs.cpu_cores < 6 }}
-        run: echo "CPU cores (${{ steps.info-block.outputs.cpu_cores }}) less than 6, skipping heavy work"
+        if: ${{ steps.info-block.outputs.cpu_cores > 6 }}
+        run: echo "CPU cores (${{ steps.info-block.outputs.cpu_cores }}) more than 6 !"
 
       - name: Print all outputs
         run: |
