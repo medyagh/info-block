@@ -63,9 +63,12 @@ run "netstat -rn"
 run "scutil --dns"
 echo "::endgroup::"
 
-echo "::group::=== Uptime and Load ==="
+echo "::group::=== Uptime ==="
 run "uptime"
 run "sysctl kern.boottime"
+echo "::endgroup::"
+
+echo "::group::=== Load ==="
 run "top -l 1 -n 0 | head -n 10"
 load_avg="$(sysctl -n vm.loadavg 2>/dev/null | awk '{print $2}' | tr -d '{},' || true)"
 echo "Load average (1m): ${load_avg:-unknown}"
