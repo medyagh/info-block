@@ -184,7 +184,8 @@ elif [[ "$RUNNER_OS" == "Windows" ]]; then
 
   echo "::group::=== Memory ==="
   run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | Format-List\""
-  mem_kb="$(powershell.exe -NoProfile -Command \"(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize\" 2>/dev/null | tr -d '\r' || echo 0)"
+  mem_kb=$(powershell.exe -NoProfile -Command "(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize" 2>/dev/null | tr -d $'\r' || true)
+  mem_kb=${mem_kb:-0}
   mem_gb=$((mem_kb / 1024 / 1024))
   echo "TotalVisibleMemorySize (kB): ${mem_kb}"
   echo "TotalVisibleMemorySize (GB): ${mem_gb}"
