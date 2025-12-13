@@ -20,6 +20,15 @@ jobs:
 
 The action detects `RUNNER_OS` and prints diagnostics tailored for macOS, Linux, or Windows runners.
 
+### Fail on any error
+By default the action is best-effort. To make it fail if any command errors, set `fail_on_error: true`:
+
+```yaml
+      - uses: medyagh/info-block@v1
+        with:
+          fail_on_error: true
+```
+
 ## Notes
-- Some Linux checks use `sudo`; they are marked `|| true` so the workflow continues even if permissions are limited.
+- Some Linux checks use `sudo`; by default failures are tolerated unless `fail_on_error` is set.
 - No inputs or outputs are required; this action is purely informational.
