@@ -31,14 +31,28 @@ echo "Memory (GB): ${mem_gb}"
 echo "memory_gb=${mem_gb}" >> "$GITHUB_OUTPUT"
 page_size="$(sysctl -n hw.pagesize 2>/dev/null || echo 4096)"
 echo "Page size: ${page_size}"
-vm_stat_output="$(vm_stat 2>/dev/null || true)"
-echo "${vm_stat_output}"
-free_pages="$(printf "%s\n" "${vm_stat_output}" | awk '/Pages (free|inactive|speculative)/ {gsub(\"[^0-9]\", \"\", $3); sum += $3} END {print sum+0}')"
-free_bytes=$((free_pages * page_size))
-free_mb=$((free_bytes / 1024 / 1024))
-echo "Free memory (bytes, approx): ${free_bytes}"
-echo "Free memory (MB, approx): ${free_mb}"
-echo "free_mem=${free_mb}" >> "$GITHUB_OUTPUT"
+physmem_line="$(top -l 1 | grep PhysMem | head -n1 2>/dev/null || true)"
+echo "PhysMem line: ${physmem_line}"
+free_mb="$(printf "%s\n" "${physmem_line}" | awk 'match($0, /([0-9]+)([GM])[^0-9]+(unused|free)/, m) {val=m[1]; if(m[2]==\"G\") val*=1024; print val; exit}')"
+if [[ -z "${free_mb}" || "${free_mb}" == "0" ]]; then
+  vm_stat_output="$(vm_stat 2>/dev/null || true)"
+  echo "${vm_stat_output}"
+  free_pages="$(printf "%s\n" "${vm_stat_output}" | awk '
+    /Pages free/ {f=$3}
+    /Pages inactive/ {i=$3}
+    /Pages speculative/ {s=$3}
+    END {
+      gsub("[^0-9]", "", f);
+      gsub("[^0-9]", "", i);
+      gsub("[^0-9]", "", s);
+      f += 0; i += 0; s += 0;
+      printf "%d", f + i + s
+    }')"
+  free_bytes=$((free_pages * page_size))
+  free_mb=$((free_bytes / 1024 / 1024))
+fi
+echo "Free memory (MB, approx): ${free_mb:-unknown}"
+echo "free_mem=${free_mb:-unknown}" >> "$GITHUB_OUTPUT"
 echo "::endgroup::"
 
 echo "::group::=== Virtualization ==="
