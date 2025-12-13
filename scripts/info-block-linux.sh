@@ -8,6 +8,9 @@ run "cat /etc/os-release"
 echo "::endgroup::"
 
 echo "::group::=== CPU ==="
+cpu_cores="$(nproc 2>/dev/null || echo 0)"
+echo "CPU cores: ${cpu_cores}"
+echo "cpu_cores=${cpu_cores}" >> "$GITHUB_OUTPUT"
 run "nproc"
 run "grep -m1 'model name' /proc/cpuinfo" || true
 run "grep -m1 '^Hardware' /proc/cpuinfo" || true

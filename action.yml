@@ -10,6 +10,9 @@ outputs:
   memory_gb:
     description: "Total memory in gigabytes (integer)"
     value: ${{ steps.info-block.outputs.memory_gb }}
+  cpu_cores:
+    description: "Number of CPU cores (integer)"
+    value: ${{ steps.info-block.outputs.cpu_cores }}
 runs:
   using: "composite"
   steps:

@@ -9,6 +9,10 @@ run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_OperatingSystem 
 echo "::endgroup::"
 
 echo "::group::=== CPU ==="
+cpu_cores=$(powershell.exe -NoProfile -Command "(Get-CimInstance Win32_Processor | Select-Object -First 1 -ExpandProperty NumberOfCores)" 2>/dev/null | tr -d $'\r' || true)
+cpu_cores=${cpu_cores:-0}
+echo "CPU cores: ${cpu_cores}"
+echo "cpu_cores=${cpu_cores}" >> "$GITHUB_OUTPUT"
 run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_Processor | Select-Object Name,NumberOfCores,NumberOfLogicalProcessors,VirtualizationFirmwareEnabled,SecondLevelAddressTranslationExtensions | Format-List\""
 run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_Processor | Select-Object Name,Manufacturer,SocketDesignation,MaxClockSpeed | Format-List\""
 echo "::endgroup::"
