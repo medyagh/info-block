@@ -45,7 +45,7 @@ if [[ "$RUNNER_OS" == "macOS" ]]; then
   echo "=== Virtualization ==="
   run "sysctl -n kern.hv_vmm_present"
   run "sysctl -n kern.hv_support" || true  # 1 means supported and zero means not supported
-  run "sysctl -n machdep.cpu.features | grep -i vmx"
+  run "sysctl -n machdep.cpu.features | grep -i vmx" || true 
 
   echo "=== Hardware Inventory ==="
   run "sysctl hw.model"
@@ -179,7 +179,7 @@ elif [[ "$RUNNER_OS" == "Windows" ]]; then
   run "powershell.exe -NoProfile -Command \"Get-DnsClientServerAddress | Format-Table -AutoSize\""
 
   echo "=== Uptime and Load ==="
-  run "net stats srv"
+  run "powershell.exe -NoProfile -Command \"(Get-CimInstance Win32_PerfFormattedData_PerfOS_System).SystemUpTime\""
   run "powershell.exe -NoProfile -Command \"(Get-CimInstance win32_operatingsystem).LastBootUpTime\""
   run "powershell.exe -NoProfile -Command \"Get-Counter -Counter \\\"\\\\Processor(_Total)\\\\% Processor Time\\\" -SampleInterval 1 -MaxSamples 1\""
 
