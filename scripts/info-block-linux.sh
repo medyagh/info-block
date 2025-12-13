@@ -73,4 +73,10 @@ run "who -b"
 run "top -b -n1 | head -n 10"
 run "cat /proc/loadavg"
 run 'awk '\''{printf "Uptime (seconds): %s\n", $1}'\'' /proc/uptime 2>/dev/null'
+load_avg="$(awk '\''{print $1}'\'' /proc/loadavg 2>/dev/null || true)"
+if [[ -z "${load_avg}" ]]; then
+  load_avg="$(uptime 2>/dev/null | awk -F'load average: ' '\''{print $2}'\'' | cut -d',' -f1 | tr -d '\'' '\'''')"
+fi
+echo "Load average (1m): ${load_avg:-unknown}"
+echo "load_average=${load_avg:-unknown}" >> "$GITHUB_OUTPUT"
 echo "::endgroup::"
