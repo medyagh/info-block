@@ -15,14 +15,14 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - id: info
+      - id: info-block
         uses: medyagh/info-block@v1
 
-      # Example: gate work when memory > 8 GB
+      # Example conditional action based on info-block outputs
       - name: Run this step only if memory is more than 8GBs
-        if: ${{ steps.info.outputs.memory_gb > 8 }}
+        if: ${{ steps.info-block.outputs.memory_gb > 8 }}
         run: |
-          echo "memory_gb: ${{ steps.info.outputs.memory_gb }}"
+          echo "memory_gb: ${{ steps.info-block.outputs.memory_gb }}"
           echo "yay! it is more than 8 gb"
 ```
 
