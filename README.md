@@ -1,6 +1,11 @@
 # info-block
 GitHub Action to print detailed runner information (OS, CPU, memory, virtualization, storage, network, uptime, and security) before your jobs run.
 
+## Features
+- Folded log groups per section (Kernel/CPU/Memory/etc.) for quick scanning
+- Exposes outputs for downstream steps (see [Outputs](#outputs))
+
+
 ## Usage
 Add a step to your workflow:
 
@@ -39,7 +44,3 @@ By default the action is best-effort. To make it fail if any command errors, set
         with:
           fail_on_error: true
 ```
-
-## Notes
-- Some Linux checks use `sudo`; by default failures are tolerated unless `fail_on_error` is set.
-- No inputs or outputs are required; this action is purely informational.
