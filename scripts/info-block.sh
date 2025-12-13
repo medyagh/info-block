@@ -44,7 +44,7 @@ if [[ "$RUNNER_OS" == "macOS" ]]; then
 
   echo "=== Virtualization ==="
   run "sysctl -n kern.hv_vmm_present"
-  run "sysctl -n kern.hv_support"
+  run "sysctl -n kern.hv_support" || true  # 1 means supported and zero means not supported
   run "sysctl -n machdep.cpu.features | grep -i vmx"
 
   echo "=== Hardware Inventory ==="
@@ -172,9 +172,9 @@ elif [[ "$RUNNER_OS" == "Windows" ]]; then
 
   echo "=== Network ==="
   echo "${HTTP_PROXY:-}"
-  run "ipconfig /all"
-  run "route print"
-  run "netstat -rn"
+  run "cmd.exe /c ipconfig /all"
+  run "cmd.exe /c route print"
+  run "cmd.exe /c netstat -rn"
   run "powershell.exe -NoProfile -Command \"Get-NetAdapter | Format-Table -AutoSize\""
   run "powershell.exe -NoProfile -Command \"Get-DnsClientServerAddress | Format-Table -AutoSize\""
 
