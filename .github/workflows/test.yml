@@ -36,6 +36,11 @@ jobs:
         run: |
           echo "memory_gb from action: ${{ steps.info-block.outputs.memory_gb }}"
           echo "yay! it is more than 8 gb"
+      - name: Run this Step only if load_average <= 1
+        if: ${{ steps.info-block.outputs.load_average != 'unknown' && fromJSON(steps.info-block.outputs.load_average) <= 1 }}
+        run: |
+          echo "load_average from action: ${{ steps.info-block.outputs.load_average }}"
+          echo "load average is within limit, proceeding"
       - name: Run info-block action (fail_on_error)
         uses: ./
         with:
