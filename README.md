@@ -1,8 +1,8 @@
 # info-block
-GitHub Action to print detailed runner information (OS, CPU, memory, virtualization, storage, network, uptime, and security) before your jobs run.
+GitHub Action to print detailed runner information 
 
-## Features
-- Folded log groups per section (Kernel/CPU/Memory/etc.) for quick scanning
+- Kernel and OS, CPU, Memory, Virtualization, Hardware Inventory, Storage, Network,Cgroups, Uptime and Load Average.
+- Folded log groups per section for quick scanning
 - Exposes outputs for downstream steps (see [supported outputs](#outputs))
 
 

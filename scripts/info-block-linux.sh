@@ -70,15 +70,18 @@ echo "::group::=== Cgroups ==="
 run "stat -fc %T /sys/fs/cgroup"
 echo "::endgroup::"
 
-echo "::group::=== Uptime and Load ==="
+echo "::group::=== Uptime ==="
 run "uptime"
 run "who -b"
+run "awk '{printf \"Uptime (seconds): %s\\n\", \$1}' /proc/uptime 2>/dev/null"
+echo "::endgroup::"
+
+echo "::group::=== Load ==="
 run "top -b -n1 | head -n 10"
 run "cat /proc/loadavg"
-run 'awk '\''{printf "Uptime (seconds): %s\n", $1}'\'' /proc/uptime 2>/dev/null'
-load_avg="$(awk '\''{print $1}'\'' /proc/loadavg 2>/dev/null || true)"
+load_avg="$(awk '{print $1}' /proc/loadavg 2>/dev/null || true)"
 if [[ -z "${load_avg}" ]]; then
-  load_avg="$(uptime 2>/dev/null | awk -F'load average: ' '\''{print $2}'\'' | cut -d',' -f1 | tr -d '\'' '\'''')"
+  load_avg="$(uptime 2>/dev/null | awk -F'load average: ' '{print $2}' | cut -d',' -f1 | tr -d ' ')"
 fi
 echo "Load average (1m): ${load_avg:-unknown}"
 echo "load_average=${load_avg:-unknown}" >> "$GITHUB_OUTPUT"
