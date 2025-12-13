@@ -3,7 +3,7 @@ GitHub Action to print detailed runner information (OS, CPU, memory, virtualizat
 
 ## Features
 - Folded log groups per section (Kernel/CPU/Memory/etc.) for quick scanning
-- Exposes outputs for downstream steps (see [Outputs](#outputs))
+- Exposes outputs for downstream steps (see [supported outputs](#outputs))
 
 
 ## Usage
@@ -34,7 +34,9 @@ jobs:
 The action detects `RUNNER_OS` and prints diagnostics tailored for macOS, Linux, or Windows runners.
 
 ### Outputs
-- `memory_gb`: Total memory in GB (integer). Contribute more outputs by opening a PR!
+- `memory_gb`: Total memory in GB (integer).
+- `cpu_cores`: Number of CPU cores (integer).
+Contribute more outputs by opening a PR!
 
 ### Fail on any error
 By default the action is best-effort. To make it fail if any command errors, set `fail_on_error: true`:
