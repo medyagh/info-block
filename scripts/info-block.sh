@@ -92,7 +92,7 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
 
   echo "=== Memory ==="
   run "grep MemTotal /proc/meminfo"
-  run "awk '/MemTotal/ {printf \"%.2f\\n\", \\\\$2 / 1024 / 1024}' /proc/meminfo"
+  run "awk '/MemTotal/ {printf \"%.2f\\n\", \\$2 / 1024 / 1024}' /proc/meminfo"
   run "free -h"
 
   echo "=== Virtualization ==="
@@ -137,7 +137,7 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   run "who -b"
   run "top -b -n1 | head -n 10"
   run "cat /proc/loadavg"
-  run "awk '{printf \"Uptime (seconds): %s\\n\", \\\\$1}' /proc/uptime 2>/dev/null"
+  run "awk '{printf \"Uptime (seconds): %s\\n\", \\$1}' /proc/uptime 2>/dev/null"
 elif [[ "$RUNNER_OS" == "Windows" ]]; then
   set -x
   echo "=== Kernel and OS ==="
