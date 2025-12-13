@@ -13,6 +13,9 @@ outputs:
   cpu_cores:
     description: "Number of CPU cores (integer)"
     value: ${{ steps.info-block.outputs.cpu_cores }}
+  load_average:
+    description: "Load average (1-minute on macOS/Linux, current CPU load % on Windows)"
+    value: ${{ steps.info-block.outputs.load_average }}
 runs:
   using: "composite"
   steps:
