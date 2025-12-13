@@ -1,5 +1,5 @@
-# info-block
-[![CI](https://github.com/medyagh/info-block/actions/workflows/test.yml/badge.svg)](https://github.com/medyagh/info-block/actions/workflows/test.yml)
+# info-block [![CI](https://github.com/medyagh/info-block/actions/workflows/test.yml/badge.svg)](https://github.com/medyagh/info-block/actions/workflows/test.yml)
+
 GitHub Action to print detailed runner information 
 
 - Kernel and OS, CPU, Memory, Virtualization, Hardware Inventory, Storage, Network,Cgroups, Uptime and Load Average.
