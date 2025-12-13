@@ -29,6 +29,12 @@ jobs:
 
       - name: Run info-block action
         uses: ./
+
+      - name: Run this Step only if memory_gb > 8 GB
+        if: ${{ steps.info-block.outputs.memory_gb > 8 }}
+        run: |
+          echo "memory_gb from action: ${{ steps.info-block.outputs.memory_gb }}"
+          echo "yay! it is more than 8 gb"
       - name: Run info-block action (fail_on_error)
         uses: ./
         with:

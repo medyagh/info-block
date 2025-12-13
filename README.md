@@ -15,10 +15,21 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
-      - uses: medyagh/info-block@v1
+      - id: info
+        uses: medyagh/info-block@v1
+
+      # Example: gate work when memory > 8 GB
+      - name: Run this step only if memory is more than 8GBs
+        if: ${{ steps.info.outputs.memory_gb > 8 }}
+        run: |
+          echo "memory_gb: ${{ steps.info.outputs.memory_gb }}"
+          echo "yay! it is more than 8 gb"
 ```
 
 The action detects `RUNNER_OS` and prints diagnostics tailored for macOS, Linux, or Windows runners.
+
+### Outputs
+- `memory_gb`: Total memory in GB (integer). Contribute more outputs by opening a PR!
 
 ### Fail on any error
 By default the action is best-effort. To make it fail if any command errors, set `fail_on_error: true`:
