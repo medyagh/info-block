@@ -48,7 +48,11 @@ if [[ "$RUNNER_OS" == "macOS" ]]; then
 
   echo "::group::=== Memory ==="
   run "sysctl -n hw.memsize"
-  run "echo \"\$(sysctl -n hw.memsize) / 1024 / 1024 / 1024\" | bc"
+  mem_bytes="$(sysctl -n hw.memsize 2>/dev/null || echo 0)"
+  mem_gb=$((mem_bytes / 1024 / 1024 / 1024))
+  echo "Memory (bytes): ${mem_bytes}"
+  echo "Memory (GB): ${mem_gb}"
+  echo "memory_gb=${mem_gb}" >> "$GITHUB_OUTPUT"
   run "sysctl -n hw.pagesize"
   run "vm_stat"
   echo "::endgroup::"
@@ -109,8 +113,11 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
   echo "::endgroup::"
 
   echo "::group::=== Memory ==="
-  run "grep MemTotal /proc/meminfo"
-  run 'awk '\''/MemTotal/ {printf "%.2f\n", $2 / 1024 / 1024}'\'' /proc/meminfo'
+  mem_kb="$(grep MemTotal /proc/meminfo | awk '{print $2}' 2>/dev/null || echo 0)"
+  mem_gb=$((mem_kb / 1024 / 1024))
+  echo "MemTotal (kB): ${mem_kb}"
+  echo "MemTotal (GB): ${mem_gb}"
+  echo "memory_gb=${mem_gb}" >> "$GITHUB_OUTPUT"
   run "free -h"
   echo "::endgroup::"
 
@@ -177,6 +184,12 @@ elif [[ "$RUNNER_OS" == "Windows" ]]; then
 
   echo "::group::=== Memory ==="
   run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_OperatingSystem | Select-Object TotalVisibleMemorySize,FreePhysicalMemory | Format-List\""
+  mem_kb=$(powershell.exe -NoProfile -Command "(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize" 2>/dev/null | tr -d $'\r' || true)
+  mem_kb=${mem_kb:-0}
+  mem_gb=$((mem_kb / 1024 / 1024))
+  echo "TotalVisibleMemorySize (kB): ${mem_kb}"
+  echo "TotalVisibleMemorySize (GB): ${mem_gb}"
+  echo "memory_gb=${mem_gb}" >> "$GITHUB_OUTPUT"
   run "powershell.exe -NoProfile -Command \"Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer,PartNumber,Capacity,Speed | Format-Table -AutoSize\""
   echo "::endgroup::"
 
