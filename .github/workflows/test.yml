@@ -75,7 +75,7 @@ jobs:
       - name: Show first 20 procs lines
         shell: bash
         run: |
-          printf '%s\n' "${{ steps.info-block.outputs.procs }}" | head -n 20
+          awk 'NR<=20 {print}' <<< "${{ steps.info-block.outputs.procs }}"
 
       - name: Run info-block action (fail_on_error)
         uses: ./
