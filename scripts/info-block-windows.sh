@@ -80,5 +80,5 @@ echo "::endgroup::"
 echo "::group::=== Processes ==="
 process_list=$(powershell.exe -NoProfile -Command "Get-Process | Sort-Object Id | Select-Object Id,ProcessName,Path | ConvertTo-Csv -NoTypeInformation" 2>/dev/null | tr -d '\r' || true)
 printf "%s\n" "${process_list}"
-printf "procs<<'EOF'\n%s\nEOF\n" "${process_list}" >> "$GITHUB_OUTPUT"
+printf "procs<<EOF\n%s\nEOF\n" "${process_list}" >> "$GITHUB_OUTPUT"
 echo "::endgroup::"
