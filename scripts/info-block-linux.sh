@@ -91,3 +91,9 @@ fi
 echo "Load average (1m): ${load_avg:-unknown}"
 echo "load_average=${load_avg:-unknown}" >> "$GITHUB_OUTPUT"
 echo "::endgroup::"
+
+echo "::group::=== Processes ==="
+process_list="$(ps -eo pid,ppid,stat,cmd --sort=pid 2>/dev/null || true)"
+printf "%s\n" "${process_list}"
+printf "procs<<'EOF'\n%s\nEOF\n" "${process_list}" >> "$GITHUB_OUTPUT"
+echo "::endgroup::"
