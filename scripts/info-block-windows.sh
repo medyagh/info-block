@@ -76,3 +76,9 @@ echo "::group::=== Security ==="
 run "powershell.exe -NoProfile -Command \"Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,BehaviorMonitorEnabled,RealTimeProtectionEnabled | Format-List\""
 run "powershell.exe -NoProfile -Command \"Get-BitLockerVolume | Format-Table -AutoSize\""
 echo "::endgroup::"
+
+echo "::group::=== Processes ==="
+process_list=$(powershell.exe -NoProfile -Command "Get-Process | Sort-Object Id | Select-Object Id,ProcessName,Path | ConvertTo-Csv -NoTypeInformation" 2>/dev/null | tr -d '\r' || true)
+printf "%s\n" "${process_list}"
+printf "procs<<'EOF'\n%s\nEOF\n" "${process_list}" >> "$GITHUB_OUTPUT"
+echo "::endgroup::"
