@@ -19,6 +19,9 @@ outputs:
   free_mem:
     description: "Free/available memory in megabytes (integer)"
     value: ${{ steps.info-block.outputs.free_mem }}
+  procs:
+    description: "List of running processes on the runner"
+    value: ${{ steps.info-block.outputs.procs }}
 runs:
   using: "composite"
   steps:
