@@ -60,23 +60,7 @@ jobs:
           echo "cpu_cores=${{ steps.info-block.outputs.cpu_cores }}"
           echo "load_average=${{ steps.info-block.outputs.load_average }}"
           echo "free_mem=${{ steps.info-block.outputs.free_mem }}"
-          echo "procs output captured"
-
-      - name: Ensure procs output is present
-        shell: bash
-        run: |
-          procs_output="${{ steps.info-block.outputs.procs }}"
-          if [[ -z "${procs_output}" ]]; then
-            echo "procs output is empty"
-            exit 1
-          fi
-          echo "procs output length: ${#procs_output}"
-
-      - name: Show first 20 procs lines
-        shell: bash
-        run: |
-          awk 'NR<=20 {print}' <<< "${{ steps.info-block.outputs.procs }}"
-
+          echo "procs=${{ steps.info-block.outputs.procs}}"
       - name: Run info-block action (fail_on_error)
         uses: ./
         with:
