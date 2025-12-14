@@ -28,13 +28,12 @@ jobs:
       - name: Run this step only if memory is more than 8GBs
         if: ${{ steps.info-block.outputs.memory_gb > 8 }}
         run: |
-          echo "memory_gb: ${{ steps.info-block.outputs.memory_gb }}"
-          echo "yay! it is more than 8 gb"
+          echo "This will ONLY run if the runner has more than 8GB memory"
 
       # Example: ensure at least 4000 MB free before a heavy job
       - name: Run heavy job only if free memory is available
         if: ${{ steps.info-block.outputs.free_mem > 4000 }}
-        run: echo "free_mem: ${{ steps.info-block.outputs.free_mem }}"
+        run: echo "This will ONLY run free memory is more than 4000mb"
 
       # Example: gate heavy tests if the 1-minute load average is below 2
       - name: Run tests only if load average is low
