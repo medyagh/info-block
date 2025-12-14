@@ -22,6 +22,9 @@ outputs:
   procs:
     description: "List of running processes on the runner"
     value: ${{ steps.info-block.outputs.procs }}
+  duration_seconds:
+    description: "Runtime of the info-block action in seconds"
+    value: ${{ steps.info-block.outputs.duration_seconds }}
 runs:
   using: "composite"
   steps:

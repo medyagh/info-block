@@ -61,6 +61,26 @@ jobs:
           echo "load_average=${{ steps.info-block.outputs.load_average }}"
           echo "free_mem=${{ steps.info-block.outputs.free_mem }}"
           echo "procs=${{ steps.info-block.outputs.procs}}"
+          echo "duration=${{ steps.info-block.outputs.duration_seconds }}"
+      - name: Enforce info-block runtime < 5s for Linux/Mac
+        shell: bash
+        run: |
+          duration=${{ steps.info-block.outputs.duration_seconds }}
+          if [[ -z "${duration}" ]]; then
+            echo "duration_seconds output missing"
+            exit 1
+          fi
+          elapsed=${duration%.*}
+          limit=5
+          # TODO fix Windows https://github.com/medyagh/info-block/issues/14
+          if [[ "${RUNNER_OS}" == "Windows" ]]; then
+            limit=35
+          fi
+          echo "info-block runtime: ${elapsed}s (limit: ${limit}s)"
+          if (( elapsed > limit )); then
+            echo "info-block exceeded time budget, please do not add a functionality that requires longer runtime"
+            exit 1
+          fi
       - name: Run info-block action (fail_on_error)
         uses: ./
         with:
