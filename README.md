@@ -48,6 +48,7 @@ The action detects `RUNNER_OS` and prints diagnostics tailored for macOS, Linux,
 - `cpu_cores`: Number of CPU cores (integer).
 - `load_average`: 1-minute load average on macOS/Linux; current CPU load percentage on Windows.
 - `free_mem`: Free/available memory in MB (integer).
+- `procs`: List of running processes on the runner.
 Contribute more outputs by opening a PR!
 
 ### Fail on any error
