@@ -5,6 +5,7 @@ GitHub Action to print detailed runner information
 - Kernel and OS, CPU, Memory, Virtualization, Hardware Inventory, Storage, Network,Cgroups, Uptime and Load Average.
 - Folded log groups per section for quick scanning
 - Exposes outputs for downstream steps (see [supported outputs](#outputs))
+- Designed to finish quickly on normal runners; the checks are lightweight and avoid slowing your jobs.
 
 
 ## Usage
