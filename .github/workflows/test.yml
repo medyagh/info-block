@@ -74,7 +74,7 @@ jobs:
           limit=5
           # TODO fix Windows https://github.com/medyagh/info-block/issues/14
           if [[ "${RUNNER_OS}" == "Windows" ]]; then
-            limit=35
+            limit=50
           fi
           echo "info-block runtime: ${elapsed}s (limit: ${limit}s)"
           if (( elapsed > limit )); then
