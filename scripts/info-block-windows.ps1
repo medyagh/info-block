@@ -12,6 +12,7 @@ function Run-Command {
         [string]$Command
     )
     Write-Host "+ $Command"
+    $sw = [System.Diagnostics.Stopwatch]::StartNew()
     try {
         Invoke-Expression $Command
     }
@@ -20,6 +21,10 @@ function Run-Command {
             throw $_
         }
         Write-Error $_
+    }
+    finally {
+        $sw.Stop()
+        Write-Host ("  (took {0:N2}s)" -f $sw.Elapsed.TotalSeconds)
     }
 }
 
@@ -33,6 +38,8 @@ function End-Group {
 }
 
 # --- Cache Common Objects ---
+Write-Host "Caching common objects..."
+$swCache = [System.Diagnostics.Stopwatch]::StartNew()
 try {
     $osInfo = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
 } catch {}
@@ -49,6 +56,8 @@ try {
         $procInfoFirst = $procInfo
     }
 } catch {}
+$swCache.Stop()
+Write-Host ("Caching took {0:N2}s" -f $swCache.Elapsed.TotalSeconds)
 
 # --- Start Output ---
 Write-Host "=== Info Block for Windows (FailOnError=$FailOnError) ==="
@@ -56,7 +65,7 @@ Write-Host "=== Info Block for Windows (FailOnError=$FailOnError) ==="
 # === Kernel and OS ===
 Write-Group "Kernel and OS"
 Run-Command "uname -a"
-Run-Command "systeminfo"
+
 if ($osInfo) {
     $osInfo | Select-Object Caption,Version,BuildNumber | Format-List | Out-Host
 } else {
@@ -145,7 +154,7 @@ if ($virtProps.Count -gt 0) {
     Write-Host "Could not retrieve Virtualization details (Get-ComputerInfo skipped for performance)."
 }
 
-Run-Command "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All"
+
 End-Group
 
 # === Hardware Inventory ===
@@ -194,7 +203,7 @@ End-Group
 
 # === Load ===
 Write-Group "Load"
-Run-Command "Get-Counter -Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 1"
+
 
 try {
     # Re-fetch for current load
