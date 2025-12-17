@@ -132,8 +132,12 @@ if ($csInfo) {
     $virtProps["HyperVisorPresent"] = $csInfo.HypervisorPresent
 }
 if ($procInfoFirst) {
-    $virtProps["VirtualizationFirmwareEnabled"] = $procInfoFirst.VirtualizationFirmwareEnabled
-    $virtProps["SecondLevelAddressTranslationExtensions"] = $procInfoFirst.SecondLevelAddressTranslationExtensions
+    if ($null -ne $procInfoFirst.VirtualizationFirmwareEnabled) {
+        $virtProps["VirtualizationFirmwareEnabled"] = $procInfoFirst.VirtualizationFirmwareEnabled
+    }
+    if ($null -ne $procInfoFirst.SecondLevelAddressTranslationExtensions) {
+        $virtProps["SecondLevelAddressTranslationExtensions"] = $procInfoFirst.SecondLevelAddressTranslationExtensions
+    }
 }
 
 if ($virtProps.Count -gt 0) {
@@ -192,8 +196,13 @@ Write-Group "Load"
 
 try {
     # Use cached CimInstance for current load
-    $loadInfo = Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average
-    $loadAvg = $loadInfo.Average
+    if ($procInfo) {
+        $loadInfo = $procInfo | Measure-Object -Property LoadPercentage -Average
+        $loadAvg = $loadInfo.Average
+    } else {
+        $loadInfo = Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average
+        $loadAvg = $loadInfo.Average
+    }
 } catch {
     $loadAvg = "unknown"
 }
