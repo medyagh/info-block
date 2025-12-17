@@ -13,7 +13,7 @@ case "${RUNNER_OS}" in
     bash "${BASH_SOURCE%/*}/info-block-linux.sh" "${FAIL_ON_ERROR}"
     ;;
   "Windows")
-    pwsh -File "${BASH_SOURCE%/*}/info-block.ps1" -FailOnError "${FAIL_ON_ERROR}" || powershell -File "${BASH_SOURCE%/*}/info-block.ps1" -FailOnError "${FAIL_ON_ERROR}"
+    pwsh -File "${BASH_SOURCE%/*}/info-block-windows.ps1" -FailOnError "${FAIL_ON_ERROR}" || powershell -File "${BASH_SOURCE%/*}/info-block-windows.ps1" -FailOnError "${FAIL_ON_ERROR}"
     ;;
   *)
     echo "Unsupported runner OS: ${RUNNER_OS:-unknown}"
