@@ -174,7 +174,8 @@ if ($env:HTTP_PROXY) {
     Write-Host $env:HTTP_PROXY
 }
 Run-Command "ipconfig /all"
-# Removed slow route print and netstat -rn commands - not critical for basic info
+Run-Command "route print"
+Run-Command "netstat -rn"
 Run-Command "Get-NetAdapter | Format-Table -AutoSize"
 Run-Command "Get-DnsClientServerAddress | Format-Table -AutoSize"
 End-Group
