@@ -193,17 +193,12 @@ End-Group
 
 # === Load ===
 Write-Group "Load"
-# Removed Get-Counter with 1 second sample interval - too slow for info gathering
+Run-Command "Get-Counter -Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 1"
 
 try {
-    # Use cached CimInstance for current load
-    if ($procInfo) {
-        $loadInfo = $procInfo | Measure-Object -Property LoadPercentage -Average
-        $loadAvg = $loadInfo.Average
-    } else {
-        $loadInfo = Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average
-        $loadAvg = $loadInfo.Average
-    }
+    # Re-fetch for current load
+    $loadInfo = Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average
+    $loadAvg = $loadInfo.Average
 } catch {
     $loadAvg = "unknown"
 }
