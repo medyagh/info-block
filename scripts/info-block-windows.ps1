@@ -56,11 +56,11 @@ Write-Host "=== Info Block for Windows (FailOnError=$FailOnError) ==="
 # === Kernel and OS ===
 Write-Group "Kernel and OS"
 Run-Command "uname -a"
-Run-Command "systeminfo"
+# Removed systeminfo - it's very slow (~2.6s) and redundant with CimInstance calls
 if ($osInfo) {
-    $osInfo | Select-Object Caption,Version,BuildNumber | Format-List | Out-Host
+    $osInfo | Select-Object Caption,Version,BuildNumber,OSArchitecture,InstallDate,SystemDirectory | Format-List | Out-Host
 } else {
-    Run-Command "Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber | Format-List"
+    Run-Command "Get-CimInstance Win32_OperatingSystem | Select-Object Caption,Version,BuildNumber,OSArchitecture,InstallDate,SystemDirectory | Format-List"
 }
 End-Group
 
@@ -126,26 +126,23 @@ End-Group
 
 # === Virtualization ===
 Write-Group "Virtualization"
-# Replaced Get-ComputerInfo with direct property checks where possible
+# Use cached CIM objects instead of slow Get-ComputerInfo (~2.5s)
 $virtProps = [ordered]@{}
 if ($csInfo) {
     $virtProps["HyperVisorPresent"] = $csInfo.HypervisorPresent
 }
 if ($procInfoFirst) {
-    # Note: These properties might vary by OS version/hardware
     $virtProps["VirtualizationFirmwareEnabled"] = $procInfoFirst.VirtualizationFirmwareEnabled
     $virtProps["SecondLevelAddressTranslationExtensions"] = $procInfoFirst.SecondLevelAddressTranslationExtensions
-    # DataExecutionPreventionAvailable is harder to map 1:1 without Get-ComputerInfo or checking Win32_OperatingSystem/LogicalProcessor
-    # We will omit the specific Requirement check if simpler properties suffice, or print what we have.
 }
 
 if ($virtProps.Count -gt 0) {
     $virtProps | Format-List | Out-Host
 } else {
-    Write-Host "Could not retrieve Virtualization details (Get-ComputerInfo skipped for performance)."
+    Write-Host "Could not retrieve Virtualization details."
 }
 
-Run-Command "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All"
+# Removed Get-WindowsOptionalFeature - slow and not critical for info display
 End-Group
 
 # === Hardware Inventory ===
@@ -163,10 +160,8 @@ End-Group
 # === Storage ===
 Write-Group "Storage"
 Run-Command "Get-CimInstance Win32_LogicalDisk | Select-Object DeviceID,FileSystem,FreeSpace,Size,VolumeName | Format-Table -AutoSize"
-# Get-PhysicalDisk / Get-Volume are usually fast enough, but we can't easily cache them with CimInstance unless we use MSFT classes which might not be consistently available via CimInstance without namespace.
-# Kept as Run-Command for now.
-Run-Command "Get-PhysicalDisk | Select FriendlyName,Model,SerialNumber,MediaType,Size,BusType | Format-Table -AutoSize"
-Run-Command "Get-Volume | Select-Object DriveLetter,FileSystemLabel,FileSystem,SizeRemaining,Size | Format-Table -AutoSize"
+# Removed Get-PhysicalDisk (~2.5s) and Get-Volume (~1.4s) - they are slow and not critical
+# Win32_LogicalDisk already provides key storage info
 End-Group
 
 # === Network ===
@@ -175,8 +170,7 @@ if ($env:HTTP_PROXY) {
     Write-Host $env:HTTP_PROXY
 }
 Run-Command "ipconfig /all"
-Run-Command "route print"
-Run-Command "netstat -rn"
+# Removed slow route print and netstat -rn commands - not critical for basic info
 Run-Command "Get-NetAdapter | Format-Table -AutoSize"
 Run-Command "Get-DnsClientServerAddress | Format-Table -AutoSize"
 End-Group
@@ -194,10 +188,10 @@ End-Group
 
 # === Load ===
 Write-Group "Load"
-Run-Command "Get-Counter -Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 1"
+# Removed Get-Counter with 1 second sample interval - too slow for info gathering
 
 try {
-    # Re-fetch for current load
+    # Use cached CimInstance for current load
     $loadInfo = Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average
     $loadAvg = $loadInfo.Average
 } catch {
