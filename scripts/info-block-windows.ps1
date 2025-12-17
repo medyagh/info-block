@@ -56,7 +56,6 @@ Write-Host "=== Info Block for Windows (FailOnError=$FailOnError) ==="
 # === Kernel and OS ===
 Write-Group "Kernel and OS"
 Run-Command "uname -a"
-# Removed systeminfo - it's very slow (~2.6s) and redundant with CimInstance calls
 if ($osInfo) {
     $osInfo | Select-Object Caption,Version,BuildNumber,OSArchitecture,InstallDate,SystemDirectory | Format-List | Out-Host
 } else {
@@ -146,7 +145,6 @@ if ($virtProps.Count -gt 0) {
     Write-Host "Could not retrieve Virtualization details."
 }
 
-# Removed Get-WindowsOptionalFeature - slow and not critical for info display
 End-Group
 
 # === Hardware Inventory ===
@@ -164,8 +162,6 @@ End-Group
 # === Storage ===
 Write-Group "Storage"
 Run-Command "Get-CimInstance Win32_LogicalDisk | Select-Object DeviceID,FileSystem,FreeSpace,Size,VolumeName | Format-Table -AutoSize"
-# Removed Get-PhysicalDisk (~2.5s) and Get-Volume (~1.4s) - they are slow and not critical
-# Win32_LogicalDisk already provides key storage info
 End-Group
 
 # === Network ===
